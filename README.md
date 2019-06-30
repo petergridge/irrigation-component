@@ -122,16 +122,20 @@ stop_programs:
 ```
 
 ## TEMPLATE EXAMPLES
-
 both of these templates provide the same result water on defined days
+```
 "{{ now().weekday() in [0,2,4,6] }}"
 "{{ now().strftime("%a") in ['Mon','Wed','Fri','Sun'] }}"
-
+```
 Water every three days
-
+```
+"{{ state_attr('irrigation.morning', 'days_since') > 2 }}"
+```
 
 Check sensor values
+```
 
+```
 ## REVISION HISTORY
 0.1
 •	Initial release
