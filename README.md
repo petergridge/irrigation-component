@@ -50,7 +50,7 @@ irrigation:
 ```
 ## CONFIGURATION VARIABLES
 
-#### programs
+##### programs
 *(list)(Required)* a list of programs to run
 #### name
 *(string)(Required)* This is the name given to the irrigation entity
@@ -71,7 +71,7 @@ irrigation:
 #### repeat
 *(int)(Optional)* This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
 
-#### zones
+##### zones
 *(list)(Required)* a list of zone to operate
 #### name
 *(string)(Required)* This is the name given to the irrigation_zone entity
@@ -122,7 +122,7 @@ stop_programs:
 ```
 
 ## TEMPLATE EXAMPLES
-both of these templates provide the same result water on defined days
+both of these templates provide the same result for watering on defined days
 ```
 "{{ now().weekday() in [0,2,4,6] }}"
 "{{ now().strftime("%a") in ['Mon','Wed','Fri','Sun'] }}"
