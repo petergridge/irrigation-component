@@ -51,8 +51,9 @@ irrigation:
 ## CONFIGURATION VARIABLES
 
 #### programs
+*(list)(Required)* a list of programs to run
 #### name
-(string)(Required) This is the name given to the irrigation entity
+*(string)(Required)* This is the name given to the irrigation entity
 #### template
 *(template)(Optional)* Allows a value_template to defer watering on the program. If defined watering will occur when the template evaluates to True. If not provide program will activate every day.
 #### icon
@@ -71,6 +72,7 @@ irrigation:
 *(int)(Optional)* This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
 
 #### zones
+*(list)(Required)* a list of zone to operate
 #### name
 *(string)(Required)* This is the name given to the irrigation_zone entity
 #### water
@@ -91,14 +93,15 @@ irrigation:
 *(icon)(Optional)* This will replace the default icon mdi:timer-sand.
 
 ## SERVICES
-### run_program:
+```
+run_program:
     description: Run a defined irrigation program.
     fields:
         entity_id:
             description: The program to manually run, watering day evaluation is ignored.
             example: 'irrigation.morning'
 
-### run_zone:
+run_zone:
     description: Run a defined irrigation program.
     fields:
         entity_id:
@@ -114,9 +117,9 @@ irrigation:
             description: Optional - Run water/wait cycle this many times.
             example: 5
 
-### stop_programs:
+stop_programs:
     description: Stop any running programs or stations.
-
+```
 
 ## TEMPLATE EXAMPLES
 
