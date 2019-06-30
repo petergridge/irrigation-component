@@ -58,24 +58,24 @@ irrigation:
 
 ##### programs
 *(list)(Required)* a list of programs to run
-#### &nbsp;&nbsp;&nbsp;&nbsp;name
-*&nbsp;&nbsp;&nbsp;&nbsp;(string)(Required)* This is the name given to the irrigation entity
-#### &nbsp;&nbsp;&nbsp;&nbsp;template
-&nbsp;&nbsp;&nbsp;&nbsp;*(template)(Optional)* Allows a value_template to defer watering on the program. If defined watering will occur when the template evaluates to True. If not provide program will activate every day.
-#### &nbsp;&nbsp;&nbsp;&nbsp;icon
-&nbsp;&nbsp;&nbsp;&nbsp;*(icon)(Optional)* This will replace the default icon.
-#### &nbsp;&nbsp;&nbsp;&nbsp;start
-&nbsp;&nbsp;&nbsp;&nbsp;*(time)(Required)* This is the start time of the program. Format hh:mm.
-#### &nbsp;&nbsp;&nbsp;&nbsp;Zones 
-*&nbsp;&nbsp;&nbsp;&nbsp;(list)(Required)* the list of zones to sequentially water
-#### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zone
-*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(entity)(Required)* This is the name given to the irrigation_zone entity.
+#### name
+*(string)(Required)* This is the name given to the irrigation entity
+#### template
+*(template)(Optional)* Allows a value_template to defer watering on the program. If defined watering will occur when the template evaluates to True. If not provide program will activate every day.
+#### icon
+*(icon)(Optional)* This will replace the default icon.
+#### start
+*(time)(Required)* This is the start time of the program. Format hh:mm.
+#### Zones 
+*(list)(Required)* the list of zones to sequentially water
+#### zone
+*(entity)(Required)* This is the name given to the irrigation_zone entity.
 #### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;water
-*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(int)(Optional)* This it the period that the zone will turn the switch_entity on for. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(int)(Optional)* This it the period that the zone will turn the switch_entity on for. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
 #### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait
 *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(int)(Optional)* This provides for an Eco capability implementing a cycle of water/wait/repeat to allow water to soak into the soil. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
-#### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;repeat
-*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(int)(Optional)* This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
+#### repeat
+*(int)(Optional)* This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
 ##### zones
 *(list)(Required)* a list of zone to operate
 #### name
