@@ -72,30 +72,30 @@ CONFIGURATION VARIABLES
 (int)(Optional) This it the period that the zone will turn the switch_entity on for. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
 #### wait
 (int)(Optional) This provides for an Eco capability implementing a cycle of water/wait/repeat to allow water to soak into the soil. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
-####repeat
+#### repeat
 (int)(Optional) This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
 
-###zones
-name
+### zones
+#### name
 (string)(Required) This is the name given to the irrigation_zone entity
-water
+#### water
 (int)(Required) This it the period that the zone will turn the switch_entity on for. Range 1 to 30 minutes.
-wait
+#### wait
 (int)(Optional) This provides for an Eco capability implementing a cycle of water/wait/repeat to allow water to soak into the soil. Range 1 to 30 minutes.
-repeat
+#### repeat
 (int)(Optional) This is the number of cycles to run water/wait. Range 1 to 30.
-template
+#### template
 (template)(Optional) Allows a value_template to defer watering on a zone. If defined watering will occur when the template evaluates to True.
-switch_entity
+#### switch_entity
 (entity)(Required) The switch to operate when the zone is triggered.
-icon_on
+#### icon_on
 (icon)(Optional) This will replace the default icon mdi:water.
-icon_off
+#### icon_off
 (icon)(Optional) This will replace the default icon mdi:water-off.
-
-icon_wait
+#### icon_wait
 (icon)(Optional) This will replace the default icon mdi:timer-sand.
-SERVICES
+
+## SERVICES
 run_program:
     description: Run a defined irrigation program.
     fields:
