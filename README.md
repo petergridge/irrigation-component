@@ -17,6 +17,7 @@ Copy the following files to the ‘config/custom components/irrigation’ direct
 ## CONFIGURATION
 A irrigation section must be present in the configuration.yaml file that specifies the irrigation programs and the sensors and switches attached:
 ### Example configuration.yaml entry
+```
 irrigation:
   programs:
   - name: morning
@@ -46,7 +47,7 @@ irrigation:
   - name: front lawn
     water: 1
     switch_entity: switch.station_2_solenoid
-
+```
 ## CONFIGURATION VARIABLES
 
 #### programs
