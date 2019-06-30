@@ -46,22 +46,16 @@ irrigation:
   - name: front lawn
     water: 1
     switch_entity: switch.station_2_solenoid
-CONFIGURATION VARIABLES
 
-### programs
+## CONFIGURATION VARIABLES
 
+#### programs
 #### name
-
 (string)(Required) This is the name given to the irrigation entity
-
 #### template
-
 (template)(Optional) Allows a value_template to defer watering on the program. If defined watering will occur when the template evaluates to True. If not provide program will activate every day.
-
 #### icon
-
 (icon)(Optional) This will replace the default icon.
-
 #### start
 (time)(Required) This is the start time of the program. Format hh:mm.
 #### Zones 
@@ -75,7 +69,7 @@ CONFIGURATION VARIABLES
 #### repeat
 (int)(Optional) This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
 
-### zones
+#### zones
 #### name
 (string)(Required) This is the name given to the irrigation_zone entity
 #### water
@@ -96,14 +90,14 @@ CONFIGURATION VARIABLES
 (icon)(Optional) This will replace the default icon mdi:timer-sand.
 
 ## SERVICES
-run_program:
+### run_program:
     description: Run a defined irrigation program.
     fields:
         entity_id:
             description: The program to manually run, watering day evaluation is ignored.
             example: 'irrigation.morning'
 
-run_zone:
+### run_zone:
     description: Run a defined irrigation program.
     fields:
         entity_id:
@@ -119,11 +113,11 @@ run_zone:
             description: Optional - Run water/wait cycle this many times.
             example: 5
 
-stop_programs:
+### stop_programs:
     description: Stop any running programs or stations.
 
 
-TEMPLATE EXAMPLES
+## TEMPLATE EXAMPLES
 
 both of these templates provide the same result water on defined days
 "{{ now().weekday() in [0,2,4,6] }}"
@@ -134,7 +128,7 @@ Water every three days
 
 Check sensor values
 
-REVISION HISTORY
+## REVISION HISTORY
 0.1
 •	Initial release
 
