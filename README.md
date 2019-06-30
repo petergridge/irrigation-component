@@ -21,7 +21,7 @@ Copy the following files to the ‘config/custom components/irrigation’ direct
 *Services.yaml
 
 ## CONFIGURATION
-A irrigation section must be present in the configuration.yaml file that specifies the irrigation programs and the sensors and switches attached:
+A irrigation section must be present in the configuration.yaml file that specifies the irrigation programs and the switches attached:
 ### Example configuration.yaml entry
 ```yaml
 irrigation:
