@@ -23,7 +23,7 @@ Copy the following files to the ‘config/custom components/irrigation’ direct
 ## CONFIGURATION
 A irrigation section must be present in the configuration.yaml file that specifies the irrigation programs and the sensors and switches attached:
 ### Example configuration.yaml entry
-```
+```yaml
 irrigation:
   programs:
   - name: morning
@@ -58,25 +58,24 @@ irrigation:
 
 ##### programs
 *(list)(Required)* a list of programs to run
-  #### name
-  *(string)(Required)* This is the name given to the irrigation entity
-  #### template
-  *(template)(Optional)* Allows a value_template to defer watering on the program. If defined watering will occur when the template evaluates to True. If not provide program will activate every day.
-  #### icon
-  *(icon)(Optional)* This will replace the default icon.
-  #### start
-  *(time)(Required)* This is the start time of the program. Format hh:mm.
-  #### Zones 
-  (list)(Required) the list of zones to sequentially water
-  #### zone
-  *(entity)(Required)* This is the name given to the irrigation_zone entity.
-  #### water
-  *(int)(Optional)* This it the period that the zone will turn the switch_entity on for. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
-  #### wait
-  *(int)(Optional)* This provides for an Eco capability implementing a cycle of water/wait/repeat to allow water to soak into the soil. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
-  #### repeat
-  *(int)(Optional)* This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
-
+#### name
+*(string)(Required)* This is the name given to the irrigation entity
+#### template
+*(template)(Optional)* Allows a value_template to defer watering on the program. If defined watering will occur when the template evaluates to True. If not provide program will activate every day.
+#### icon
+*(icon)(Optional)* This will replace the default icon.
+#### start
+*(time)(Required)* This is the start time of the program. Format hh:mm.
+#### Zones 
+(list)(Required) the list of zones to sequentially water
+#### zone
+*(entity)(Required)* This is the name given to the irrigation_zone entity.
+#### water
+*(int)(Optional)* This it the period that the zone will turn the switch_entity on for. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
+#### wait
+*(int)(Optional)* This provides for an Eco capability implementing a cycle of water/wait/repeat to allow water to soak into the soil. Range 1 to 30 minutes. Defaults to the zone specification if not provided.
+#### repeat
+*(int)(Optional)* This is the number of cycles to run water/wait. Range 1 to 30. Defaults to the zone specification if not provided.
 ##### zones
 *(list)(Required)* a list of zone to operate
 #### name
