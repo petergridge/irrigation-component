@@ -130,7 +130,7 @@ stop_programs:
 both of these templates provide the same result for watering on defined days
 ```
 "{{ now().weekday() in [0,2,4,6] }}"
-"{{ now().strftime("%a") in ['Mon','Wed','Fri','Sun'] }}"
+"{{ now().strftime('%a') in ['Mon','Wed','Fri','Sun'] }}"
 ```
 Water every three days
 ```
