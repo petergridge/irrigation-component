@@ -1,0 +1,25 @@
+run_program:
+    description: Run a defined irrigation program.
+    fields:
+        entity_id:
+            description: The program to manually run, watering day evaluation is ignored.
+            example: 'irrigation.morning'
+
+run_zone:
+    description: Run a defined irrigation program.
+    fields:
+        entity_id:
+            description: The zone to manually run, template evaluation is ignored.
+            example: 'irrigation_zone.vege_patch'
+        water:
+            description: Otional - Minutes to water.
+            example: 1
+        wait:
+            description: Optional - Minutes to delay between repetitions.
+            example: 1
+        repeat:
+            description: Optional - Run water/wait cycle this many times.
+            example: 5
+
+stop_programs:
+    description: Stop any running programs or stations.
