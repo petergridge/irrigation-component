@@ -1,0 +1,109 @@
+# both of these templates provide the same result water on defined days
+# "{{ now().weekday() in [0,2,4,6] }}"
+# "{{ now().strftime("%a") in ['Mon','Wed','Fri','Sun'] }}"
+#Set number of days between watering
+# water in the third day use > so it will still water on the fourth day if you have a sensor defined
+# "{{ state_attr('irrigation.morning', 'days_since') > 2 }}" # water in the third day
+
+
+irrigation:
+  
+  programs:
+  - name: Morning
+    #template: "{{ now().weekday() in [0,2,4,6] }}"
+    template: "{{ state_attr('irrigation.morning', 'days_since') > 2 }}"
+    icon: mdi:fountain
+    start: "07:30"
+    zones:
+      - zone: irrigation_zone.vege_patch
+        water: 1
+        wait: 1
+        repeat: 2
+      - zone: irrigation_zone.front_lawn
+  - name: afternoon
+    template: "{{ now().weekday() in [0,1,2,3,4,5,6] }}"
+    start: "19:55"
+    zones:
+      - zone: irrigation_zone.vege_patch
+        water: 1
+        wait: 1
+        repeat: 2
+      - zone: irrigation_zone.front_lawn
+        water: 3
+        wait: 1
+        repeat: 3
+  - name: midday2
+    template: "{{ state_attr('irrigation.morning', 'days_since') > 1 }}"
+    start: "12:50"
+    zones:
+      - zone: irrigation_zone.pot_plants
+      - zone: irrigation_zone.vege_patch
+      - zone: irrigation_zone.front_lawn
+
+  zones:
+  - name: Vege Patch
+    water: 1
+#    template: "{{ now().strftime('%a') in ['Mon','Wed','Fri'] }}"
+    switch_entity: switch.station_1_solenoid
+    icon_off: 'mdi:carrot'
+  - name: Front Lawn
+    water: 1
+    switch_entity: switch.station_2_solenoid
+  - name: Pot Plants
+    water: 1
+    wait: 1
+    repeat: 2
+    icon_off: 'mdi:flower'
+    switch_entity: switch.station_3_solenoid
+
+
+switch:
+
+# Solenoid control
+  - platform: mqtt
+    name: "Station 1 Solenoid"
+    state_topic: "irrigation/station1/state"
+    command_topic: "irrigation/station1/cmd"
+    payload_on: ON
+    payload_off: OFF
+    # set to false once integrated with a valve on ESP8266
+    optimistic: true
+    qos: 0
+    retain: false
+    icon: mdi:water
+
+  - platform: mqtt
+    name: "Station 2 Solenoid"
+    state_topic: "irrigation/station2/state"
+    command_topic: "irrigation/station2/cmd"
+    payload_on: ON
+    payload_off: OFF
+    # set to false once integrated with a valve ESP8266
+    optimistic: true
+    qos: 0
+    retain: false
+    icon: mdi:water
+
+  - platform: mqtt
+    name: "Station 3 Solenoid"
+    state_topic: "irrigation/station3/state"
+    command_topic: "irrigation/station3/cmd"
+    payload_on: ON
+    payload_off: OFF
+    # set to false once integrated with a valve ESP8266
+    optimistic: true
+    qos: 0
+    retain: false
+    icon: mdi:water
+
+  - platform: mqtt
+    name: "Station 4 Solenoid"
+    state_topic: "irrigation/station4/state"
+    command_topic: "irrigation/station4/cmd"
+    payload_on: ON
+    payload_off: OFF
+    # set to false once integrated with a valve ESP8266
+    optimistic: true
+    qos: 0
+    retain: false
+    icon: mdi:water
