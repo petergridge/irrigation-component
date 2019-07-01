@@ -65,7 +65,7 @@ irrigation:
 #### icon
 *(icon)(Optional)* This will replace the default icon.
 #### start
-*(time)(Required)* This is the start time of the program. Format hh:mm.
+*(time)(Required)* This is the start time of the program. Format "hh:mm".
 #### Zones 
 *(list)(Required)* the list of zones to sequentially water
 #### zone
