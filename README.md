@@ -103,7 +103,7 @@ run_program:
     description: Run a defined irrigation program.
     fields:
         entity_id:
-            description: The program to manually run, watering day evaluation is ignored.
+            description: The program to manually run, template evaluation is ignored.
             example: 'irrigation.morning'
 
 run_zone:
