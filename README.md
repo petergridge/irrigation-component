@@ -16,7 +16,7 @@ The component creates two entity types
 
 ## INSTALLATION
 Copy the following files to the ‘config/custom components/irrigation’ directory 
-* `__init__.py`
+* `__init__.py
 * Manifest.json
 * Services.yaml
 
