@@ -322,8 +322,7 @@ class Irrigation(RestoreEntity):
         now            = dt_util.utcnow()
         time_date      = dt_util.start_of_local_day(dt_util.as_local(now))
         self._last_run = dt_util.as_local(time_date).date().isoformat()
-        self._LASTRUN  = self._last_run
-        self._template     = attributes.get(ATTR_TEMPLATE)
+        self._template = attributes.get(ATTR_TEMPLATE)
         self._state_attributes = None
         self._running = False
         self._running_zone = None
@@ -358,7 +357,9 @@ class Irrigation(RestoreEntity):
         if state:
             """ handle bad data or new entity"""
             if not cv.date(state.state):
-                self._last_run = self._LASTRUN
+                now            = dt_util.utcnow()
+                time_date      = dt_util.start_of_local_day(dt_util.as_local(now))
+                self._last_run = dt_util.as_local(time_date).date().isoformat()
             else:
                 self._last_run = state.state
 
@@ -483,7 +484,9 @@ class Irrigation(RestoreEntity):
 
         """ update the status to new last watering day """
         if perform_eval:
-            self._last_run = self._LASTRUN
+            now            = dt_util.utcnow()
+            time_date      = dt_util.start_of_local_day(dt_util.as_local(now))
+            self._last_run = dt_util.as_local(time_date).date().isoformat()
 
         self._running = False
 
