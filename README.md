@@ -16,9 +16,9 @@ The component creates two entity types
 
 ## INSTALLATION
 Copy the following files to the ‘config/custom components/irrigation’ directory 
-* `__init__.py'
-* Manifest.json
-* Services.yaml
+* `__init__.py`
+* `Manifest.json`
+* `Services.yaml`
 
 ## CONFIGURATION
 A irrigation section must be present in the configuration.yaml file that specifies the irrigation programs and the switches attached:
