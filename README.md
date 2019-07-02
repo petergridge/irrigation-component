@@ -140,6 +140,7 @@ Water every three days
 Check sensor values
 ```
 {{ now().weekday() in [0,1,2,3,4,5,6] and states('binary_sensor.is_wet') == 'off' }}
+{{ is_state('binary_sensor.is_wet','off') }}
 {{ states('binary_sensor.is_wet') == 'off' }}
 ```
 ## REVISION HISTORY
