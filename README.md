@@ -6,6 +6,8 @@ When starting up or powering down the defined switches are turned off to help pr
 
 Programs start at the same time every day and then check their defined template to determine if watering is required. The template does not trigger the watering event.
 
+Water can occur in an Eco mode where a water/wait/repeat cycle is run to minimise run off by letting water soak as a result of several short watering cycles.
+
 Only one program can run at a time to prevent multiple solenoids being activated. If programs overlap the running program will be stopped.
 
 Templates can be used to monitor conditions to prevent watering occurring. On the program this can be used to run on specific days or every 3 days or to prevent watering based on a sensor state. On zones this can be extended so watering can still occur in a covered area, or not occur if it is very windy the options are endless.
