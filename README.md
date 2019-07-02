@@ -1,5 +1,5 @@
 # Irrigation
-![Irrigation|690x469,75%](irrigation.PNG)
+![Irrigation|690x469,50%](irrigation.PNG)
 The irrigation component provides the capability to control your irrigation solenoids.
 
 When starting up or powering down the defined switches are turned off to help prevent a solenoid being left on accidentally as a result of your home assistant server having a power outage.
