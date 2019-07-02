@@ -4,6 +4,8 @@ The irrigation component provides the capability to control your irrigation sole
 
 When starting up or powering down the defined switches are turned off to help prevent a solenoid being left on accidentally as a result of your home assistant server having a power outage.
 
+Programs start at the same time every day and then check their defined template to determine if watering is required. The template does not trigger the watering event.
+
 Only one program can run at a time to prevent multiple solenoids being activated. If programs overlap the running program will be stopped.
 
 Templates can be used to monitor conditions to prevent watering occurring. On the program this can be used to run only on certain days or every 3 days or to prevent watering from a moisture sensor state. On zones this can be extended so watering can still occur in a covered area, or not occur if it is very windy the options are endless.
