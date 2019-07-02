@@ -2,11 +2,11 @@ run_program:
     description: Run a defined irrigation program.
     fields:
         entity_id:
-            description: The program to manually run, watering day evaluation is ignored.
+            description: The program to manually run, template evaluation is ignored.
             example: 'irrigation.morning'
 
 run_zone:
-    description: Run a defined irrigation program.
+    description: Run a defined irrigation zone.
     fields:
         entity_id:
             description: The zone to manually run, template evaluation is ignored.
@@ -22,4 +22,4 @@ run_zone:
             example: 5
 
 stop_programs:
-    description: Stop any running programs or stations.
+    description: Stop any running programs or zones.
