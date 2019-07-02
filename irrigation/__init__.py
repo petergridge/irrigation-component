@@ -56,7 +56,7 @@ PLATFORM_ZONE    = 'zone'
 PLATFORMS = [PLATFORM_PROGRAM,PLATFORM_ZONE]
 
 STATE_ECO        = 'Eco'
-ATTR_IGNORE      = 'ignore'
+ATTR_EVAL        = 'eval'
 ATTR_IRRIG_ID    = 'name'
 ATTR_NAME        = 'name'
 ATTR_REMAINING   = 'remaining'
@@ -76,7 +76,6 @@ ATTR_ICON_WAIT   = 'icon_wait'
 ATTR_ICON_OFF    = 'icon_off'
 ATTR_PROGRAMS    = 'programs'
 CONST_ENTITY     = 'entity_id'
-CONST_SILENT     = 'silent'
 CONST_SWITCH     = 'switch'
 
 DFLT_ICON_WATER  = 'mdi:water'
@@ -120,16 +119,16 @@ async def async_setup(hass, config):
     @asyncio.coroutine
     def async_run_program_service(call):
         try:
-            perform_eval = call.data.get(CONST_SILENT,False)            
+            perform_eval = call.data.get(ATTR_EVAL,False)            
             entity_id = call.data.get(CONST_ENTITY)
         except:
-            perform_eval = call.get(CONST_SILENT,False)            
+            perform_eval = call.get(ATTR_EVAL,False)            
             entity_id = call.get(CONST_ENTITY)
 
         """ stop any running zones  before starting a new program"""
         hass.services.async_call(DOMAIN, 
                                  'stop_programs', 
-                                 {CONST_SILENT:True})
+                                 {ATTR_EVAL:True})
 
         entity = component.get_entity(entity_id)
         if entity:
@@ -145,23 +144,17 @@ async def async_setup(hass, config):
     @asyncio.coroutine
     def async_run_zone_service(call):
 
-        try:
-            entity_id = call.data.get(CONST_ENTITY)
-            y_water   = call.data.get(ATTR_WATER,0)
-            y_wait    = call.data.get(ATTR_WAIT,0)
-            y_repeat  = call.data.get(ATTR_REPEAT,0)
-            y_ignore  = True
-        except:
-            entity_id = call.get(CONST_ENTITY)
-            y_water   = call.get(ATTR_WATER,0)
-            y_wait    = call.get(ATTR_WAIT,0)
-            y_repeat  = call.get(ATTR_REPEAT,0)
-            y_ignore  = False
+        """ called from manually service """
+        entity_id = call.data.get(CONST_ENTITY)
+        y_water   = call.data.get(ATTR_WATER,0)
+        y_wait    = call.data.get(ATTR_WAIT,0)
+        y_repeat  = call.data.get(ATTR_REPEAT,0)
+        y_ignore  = call.data.get(ATTR_EVAL,False)
 
         DATA = {ATTR_WATER:y_water, 
                 ATTR_WAIT:y_wait, 
                 ATTR_REPEAT:y_repeat,
-                ATTR_IGNORE:y_ignore}
+                ATTR_EVAL:y_ignore}
 
         entity = component.get_entity(entity_id)
         if entity:
@@ -176,7 +169,6 @@ async def async_setup(hass, config):
 
     @asyncio.coroutine
     def async_stop_program_service(call):
-#        silent = call.data.get(CONST_SILENT,False)
 
         for program in conf.get(ATTR_PROGRAMS):
             y_irrigation_id = cv.slugify(program.get(ATTR_IRRIG_ID))
@@ -262,7 +254,7 @@ async def async_setup(hass, config):
                                    component))
         """ set automation to start the program at the desired times """
         y_hour, y_minute  = program.get(ATTR_START).split(':')
-        DATA = {CONST_ENTITY:p_entity,CONST_SILENT:True}
+        DATA = {CONST_ENTITY:p_entity,ATTR_EVAL:True}
         async_track_time_change(hass, 
                                 async_run_program_service(DATA), 
                                 hour=int(y_hour), 
@@ -435,22 +427,20 @@ class Irrigation(RestoreEntity):
         self._running = True
 
         """ assess the template """
-        r_eval = 'true'
-        if self._template is not None:
-            self._template.hass = self.hass
-            try:
-                r_eval = self._template.async_render().lower() == 'true'
-            except TemplateError as ex:
-                if ex.args and ex.args[0].startswith(
-                        "UndefinedError: 'None' has no attribute"):
-                    # Common during HA startup - so just a warning
-                    _LOGGER.warning(ex)
+        if perform_eval:
+            evaluated = 'True'
+            if self._template is not None:
+                self._template.hass = self.hass
+                try:
+                    evaluated = self._template.async_render()
+                except:
+                    _LOGGER.error('Program template %s, invalid: %s',
+                                    self._name, 
+                                    self._template)
                     return
-                _LOGGER.error(ex)
-                return
 
-        if r_eval == 'false':
-            return
+            if evaluated == 'False':
+                return
 
         """ Iterate through all the defined zones """
         for zone in self._zones:
@@ -465,7 +455,8 @@ class Irrigation(RestoreEntity):
             DATA = {CONST_ENTITY:y_zone, 
                     ATTR_WATER:y_water, 
                     ATTR_WAIT:y_wait, 
-                    ATTR_REPEAT:y_repeat} 
+                    ATTR_REPEAT:y_repeat,
+                    ATTR_EVAL:perform_eval} 
             await self.hass.services.async_call(DOMAIN, 
                                                 'run_zone', 
                                                 DATA)
@@ -603,7 +594,7 @@ class IrrigationZone(Entity):
     @asyncio.coroutine
     async def async_run_zone(self,DATA):
         self._stop = False
-        y_ignore_template = DATA.get(ATTR_IGNORE,True)
+        perform_eval = DATA.get(ATTR_EVAL,True)
         y_water  = int(DATA.get(ATTR_WATER,self._water))
         y_wait   = int(DATA.get(ATTR_WAIT,self._wait))
         y_repeat = int(DATA.get(ATTR_REPEAT,self._repeat))
@@ -613,22 +604,19 @@ class IrrigationZone(Entity):
             y_repeat = self._repeat
 
         """ assess the template """
-        if not y_ignore_template:
-            evaluated = 'true'
+        if perform_eval:
+            evaluated = 'True'
             if self._template is not None:
                 self._template.hass = self.hass
                 try:
-                    evaluated = self._template.async_render().lower() == 'true'
-                except TemplateError as ex:
-                    if ex.args and ex.args[0].startswith(
-                            "UndefinedError: 'None' has no attribute"):
-                        # Common during HA startup - so just a warning
-                        _LOGGER.warning(ex)
-                        return
-                    _LOGGER.error(ex)
+                    evaluated = self._template.async_render()
+                except:
+                    _LOGGER.error('zone template %s, invalid: %s',
+                                    self._name, 
+                                    self._template)
                     return
 
-            if not evaluated:
+            if evaluated == 'False':
                 return
 
         """ run the watering cycle, water/wait/repeat """
@@ -642,7 +630,6 @@ class IrrigationZone(Entity):
             await self.hass.services.async_call(CONST_SWITCH, 
                                                 SERVICE_TURN_ON, 
                                                 DATA)
-#            self.async_schedule_update_ha_state()
 
             water = y_water * 60
             step = 2
@@ -660,7 +647,6 @@ class IrrigationZone(Entity):
                 await self.hass.services.async_call(CONST_SWITCH, 
                                                     SERVICE_TURN_OFF, 
                                                     DATA)
-#                self.async_schedule_update_ha_state()
 
                 wait = y_wait * 60
                 step = 2
