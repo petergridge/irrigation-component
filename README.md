@@ -12,9 +12,11 @@ Templates can be used to monitor conditions to prevent watering occurring. On th
 
 The component creates two entity types
 * irrigarion - to represent a program
-  - the irrigation entity store the last run day
+  - The irrigation entity stores the last run day.
+  - The list of zones to run in this program.
 * irrigation_zone - to represent zones
-  - the irrigation_zone provides the link to the switch that controls the solenoid
+  - The irrigation_zone provides the link to a switch entity to control a solenoid.
+  - The length of time to water.
 
 ## INSTALLATION
 Copy the following files to the ‘config/custom components/irrigation’ directory 
