@@ -8,7 +8,7 @@ Programs start at the same time every day and then check their defined template 
 
 Only one program can run at a time to prevent multiple solenoids being activated. If programs overlap the running program will be stopped.
 
-Templates can be used to monitor conditions to prevent watering occurring. On the program this can be used to run only on certain days or every 3 days or to prevent watering from a moisture sensor state. On zones this can be extended so watering can still occur in a covered area, or not occur if it is very windy the options are endless.
+Templates can be used to monitor conditions to prevent watering occurring. On the program this can be used to run on specific days or every 3 days or to prevent watering based on a sensor state. On zones this can be extended so watering can still occur in a covered area, or not occur if it is very windy the options are endless.
 
 The component creates two entity types
 * irrigarion - to represent a program
