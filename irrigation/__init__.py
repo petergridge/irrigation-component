@@ -197,10 +197,9 @@ async def async_setup(hass, config):
             else:
                 _LOGGER.error('irrigation_zone not found: %s', 
                               entity_id)
-
-
     """ END async_stop_program_service """
-    
+
+
     @asyncio.coroutine
     def async_stop_switches(call):
         for zone in conf.get(ATTR_ZONES):
@@ -418,7 +417,12 @@ class Irrigation(RestoreEntity):
 
     @asyncio.coroutine
     async def async_refresh_program(self):
-        self.async_schedule_update_ha_state(True)
+        a = datetime.now()
+        b = datetime.fromisoformat(self._last_run + " 00:00:00")
+        d = a - b
+        ATTRS = {'start_time':self._start_time, 'days_since':d.days}
+        setattr(self, '_state_attributes', ATTRS)
+        self.async_schedule_update_ha_state()
     
 
     @asyncio.coroutine
@@ -468,6 +472,7 @@ class Irrigation(RestoreEntity):
             """ wait for the state to take """
             step = 2
             await asyncio.sleep(step)
+            """ monitor the zone state """
             while entity.state != STATE_OFF:
                 await asyncio.sleep(step)
                 if self._stop == True:
