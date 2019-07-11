@@ -251,14 +251,6 @@ async def async_setup(hass, config):
         entities.append(Irrigation(p_entity, 
                                    program, 
                                    component))
-        """ set automation to start the program at the desired times """
-        y_hour, y_minute  = program.get(ATTR_START).split(':')
-        DATA = {CONST_ENTITY:p_entity,ATTR_EVAL:True}
-        async_track_time_change(hass, 
-                                async_run_program_service(DATA), 
-                                hour=int(y_hour), 
-                                minute=int(y_minute), 
-                                second=00)
 
     for zone in conf.get(ATTR_ZONES):
         y_irrigation_id = cv.slugify(zone.get(ATTR_IRRIG_ID))
@@ -269,14 +261,6 @@ async def async_setup(hass, config):
 
     await component.async_add_entities(entities)
     await component.async_add_entities(zoneentities)
-
-
-    async_track_time_change(hass, 
-                            async_run_refresh_program({}), 
-                            hour=00, 
-                            minute=00, 
-                            second=00)
-
 
     """ define services """
     hass.services.async_register(DOMAIN, 
@@ -318,7 +302,6 @@ class Irrigation(RestoreEntity):
         self._running = False
         self._running_zone = None
 
-
     async def async_added_to_hass(self):
         """Register callbacks."""
         @callback
@@ -353,6 +336,19 @@ class Irrigation(RestoreEntity):
                 self._last_run = dt_util.as_local(time_date).date().isoformat()
             else:
                 self._last_run = state.state
+
+        y_hour, y_minute  = self._start_time.split(':')
+        async_track_time_change(self.hass, 
+                                self.async_run_program(True), 
+                                hour=int(y_hour), 
+                                minute=int(y_minute),
+                                second=00)
+
+        async_track_time_change(self.hass, 
+                                self.async_refresh_program, 
+                                hour=00, 
+                                minute=00,
+                                second=00)
 
 
     @property
@@ -511,7 +507,9 @@ class IrrigationZone(Entity):
         self._new_state  = STATE_OFF
         self._stop       = False
         self._template   = attributes.get(ATTR_TEMPLATE)
-
+        self._runtime    = 0
+        self._state_attributes = {'remaing':self._runtime}
+        
     async def async_added_to_hass(self):
         """Register callbacks."""
         @callback
@@ -559,7 +557,7 @@ class IrrigationZone(Entity):
         """Return the state attributes.
         Implemented by component base class.
         """
-        return None
+        return self._state_attributes
 
     async def async_update(self):
         """Update the state from the template."""
@@ -572,9 +570,7 @@ class IrrigationZone(Entity):
             icon = self._icon_wait
         else:
             icon = self._icon_water
-        
         setattr(self, '_icon', icon)
-
 
     @asyncio.coroutine
     async def async_stop_zone(self):
@@ -598,6 +594,7 @@ class IrrigationZone(Entity):
 
     @asyncio.coroutine
     async def async_run_zone(self,DATA):
+        step = 1
         self._stop = False
         perform_eval = DATA.get(ATTR_EVAL,True)
         y_water  = int(DATA.get(ATTR_WATER,self._water))
@@ -624,6 +621,9 @@ class IrrigationZone(Entity):
             if evaluated == 'False':
                 return
 
+        self._runtime = (((y_water + y_wait) * y_repeat) - y_wait) * 60
+#        _LOGGER.error('run time: %s',self._runtime)
+
         """ run the watering cycle, water/wait/repeat """
         DATA = {ATTR_ENTITY_ID: self._switch}
         for i in range(y_repeat, 0, -1):
@@ -637,8 +637,11 @@ class IrrigationZone(Entity):
                                                 DATA)
 
             water = y_water * 60
-            step = 2
             for w in range(0,water, step):
+                self._runtime = self._runtime - step
+                ATTRS = {'remaining':self._runtime}
+                setattr(self, '_state_attributes', ATTRS)
+                self.async_schedule_update_ha_state()
                 await asyncio.sleep(step)
                 if self._stop == True:
                     break
@@ -654,8 +657,11 @@ class IrrigationZone(Entity):
                                                     DATA)
 
                 wait = y_wait * 60
-                step = 2
                 for w in range(0,wait, step):
+                    self._runtime = self._runtime - step
+                    ATTRS = {'remaining':self._runtime}
+                    setattr(self, '_state_attributes', ATTRS)
+                    self.async_schedule_update_ha_state()
                     await asyncio.sleep(step)
                     if self._stop == True:
                         break
@@ -667,5 +673,8 @@ class IrrigationZone(Entity):
                                                     SERVICE_TURN_OFF, 
                                                     DATA)
 
+        self._runtime = 0
+        ATTRS = {'remaing':self._runtime}
+        setattr(self, '_state_attributes', ATTRS)
         self.async_schedule_update_ha_state()
         return True
