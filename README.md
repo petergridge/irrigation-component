@@ -13,7 +13,7 @@ Only one program can run at a time to prevent multiple solenoids being activated
 Templates can be used to monitor conditions to prevent watering occurring. For programs this can be used to run on specific days or every 3 days or to prevent watering based on a sensor state. For zones this can be used so rules can be applied to individual zones allowing watering to occur in a covered area, or not occur if it is very windy the options are endless.
 
 The component creates two entity types
-* irrigarion - to represent a program
+* irrigation - to represent a program
   - The irrigation entity stores the last run day.
   - The list of zones to run in this program.
 * irrigation_zone - to represent zones
