@@ -3,19 +3,16 @@ import logging
 import voluptuous as vol
 
 from datetime import datetime
-from homeassistant.core import callback
-from homeassistant.exceptions import TemplateError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.restore_state import RestoreEntity
 import homeassistant.util.dt as dt_util
 from homeassistant.const import (
-    ATTR_ENTITY_ID, CONF_NAME , ATTR_ICON,
+    ATTR_ENTITY_ID, ATTR_ICON,
     EVENT_HOMEASSISTANT_START,EVENT_HOMEASSISTANT_STOP, 
     SERVICE_TURN_OFF, SERVICE_TURN_ON, STATE_ON, STATE_OFF)
-from homeassistant.helpers.event import (
-    async_track_time_change, async_track_state_change)
+from homeassistant.helpers.event import (async_track_template)
 
 
 def time_hhmm_str(value: str) -> str:
@@ -63,7 +60,6 @@ ATTR_REMAINING   = 'remaining'
 ATTR_REPEAT      = 'repeat'
 ATTR_RUNTIME     = 'runtime'
 ATTR_SENSOR      = 'sensor_entity'
-ATTR_START       = 'start'
 ATTR_SWITCH      = 'switch_entity'
 ATTR_TEMPLATE    = 'template'
 ATTR_WAIT        = 'wait'
@@ -83,33 +79,34 @@ DFLT_ICON_WAIT   = 'mdi:timer-sand'
 DFLT_ICON_OFF    = 'mdi:water-off'
 DFLT_ICON        = 'mdi:fountain'
 
+REFRESH_TEMPLATE = "{{ states('sensor.time') == '00:01' }}"
+
 CONFIG_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Schema({
-            vol.Required(ATTR_ZONES):[{    
-                vol.Required(ATTR_IRRIG_ID): cv.string,
-                vol.Required(ATTR_WATER): vol.Range(min=1, max=30),
+    DOMAIN: vol.Schema({
+        vol.Required(ATTR_ZONES):[{    
+            vol.Required(ATTR_IRRIG_ID): cv.string,
+            vol.Required(ATTR_WATER): vol.Range(min=1, max=30),
+            vol.Optional(ATTR_WAIT): vol.Range(min=1, max=30),
+            vol.Optional(ATTR_REPEAT): vol.Range(min=1, max=30),
+            vol.Optional(ATTR_TEMPLATE): cv.template,
+            vol.Required(ATTR_SWITCH): cv.entity_domain('switch'),
+            vol.Optional(ATTR_ICON_WATER,default=DFLT_ICON_WATER): cv.icon,
+            vol.Optional(ATTR_ICON_WAIT,default=DFLT_ICON_WAIT): cv.icon,
+            vol.Optional(ATTR_ICON_OFF,default=DFLT_ICON_OFF): cv.icon,
+        }],
+        vol.Required(ATTR_PROGRAMS):[{    
+            vol.Required(ATTR_IRRIG_ID): cv.string,
+            vol.Required(ATTR_TEMPLATE): cv.template,
+            vol.Optional(ATTR_ICON,default=DFLT_ICON): cv.icon,
+            vol.Required(ATTR_ZONES): [{
+                vol.Required(ATTR_ZONE): cv.entity_domain('irrigation_zone'),
+                vol.Optional(ATTR_WATER): vol.Range(min=1, max=30),
                 vol.Optional(ATTR_WAIT): vol.Range(min=1, max=30),
                 vol.Optional(ATTR_REPEAT): vol.Range(min=1, max=30),
-                vol.Optional(ATTR_TEMPLATE): cv.template,
-                vol.Required(ATTR_SWITCH): cv.entity_domain('switch'),
-                vol.Optional(ATTR_ICON_WATER,default=DFLT_ICON_WATER): cv.icon,
-                vol.Optional(ATTR_ICON_WAIT,default=DFLT_ICON_WAIT): cv.icon,
-                vol.Optional(ATTR_ICON_OFF,default=DFLT_ICON_OFF): cv.icon,
             }],
-            vol.Required(ATTR_PROGRAMS):[{    
-                vol.Required(ATTR_IRRIG_ID): cv.string,
-                vol.Optional(ATTR_TEMPLATE): cv.template,
-                vol.Optional(ATTR_ICON,default=DFLT_ICON): cv.icon,
-                vol.Optional(ATTR_START): time_hhmm_str,
-                vol.Optional(ATTR_ZONES): [{
-                    vol.Required(ATTR_ZONE): cv.entity_domain('irrigation_zone'),
-                    vol.Optional(ATTR_WATER): vol.Range(min=1, max=30),
-                    vol.Optional(ATTR_WAIT): vol.Range(min=1, max=30),
-                    vol.Optional(ATTR_REPEAT): vol.Range(min=1, max=30),
-                }],
-            }],
-        }),
+        }],
+    }),
     },
     extra=vol.ALLOW_EXTRA,
 )
@@ -141,6 +138,7 @@ async def async_setup(hass, config):
             _LOGGER.error('irrigation program not found: %s', entity_id)
     """ END async_run_program_service """
 
+
     @asyncio.coroutine
     def async_run_zone_service(call):
 
@@ -166,6 +164,7 @@ async def async_setup(hass, config):
         else:
             _LOGGER.error('irrigation_zone not found: %s', entity_id)
     """ END async_run_zone_service """
+
 
     @asyncio.coroutine
     def async_stop_program_service(call):
@@ -216,14 +215,13 @@ async def async_setup(hass, config):
             else:
                 _LOGGER.error('irrigation_zone not found: %s', entity_id)
     """ END async_stop_switches """
-    
-    
+
+
     """ create the entities and time tracking on setup of the component """
     conf = config[DOMAIN]
     component = EntityComponent(_LOGGER, DOMAIN, hass)
     entities = []
     zoneentities = []
-
 
     for program in conf.get(ATTR_PROGRAMS):
         y_irrigation_id = cv.slugify(program.get(ATTR_IRRIG_ID))
@@ -238,7 +236,6 @@ async def async_setup(hass, config):
         p_entity = ZONE_ENTITY_ID_FORMAT.format(y_irrigation_id)
         zoneentities.append(IrrigationZone(p_entity, 
                                            zone))    
-
 
     await component.async_add_entities(entities)
     await component.async_add_entities(zoneentities)
@@ -269,19 +266,19 @@ class Irrigation(RestoreEntity):
         """Initialize a Irrigation program."""
         self.entity_id   = irrigation_id 
         self._attributes = attributes
-        self._component = component
-        self._name      = attributes.get(ATTR_NAME)
+        self._component  = component
+        self._name       = attributes.get(ATTR_NAME)
         self._zones      = attributes.get(ATTR_ZONES)
-        self._start_time = attributes.get(ATTR_START)
         self._stop = False
         """ default to today for new programs """
         now            = dt_util.utcnow()
         time_date      = dt_util.start_of_local_day(dt_util.as_local(now))
         self._last_run = dt_util.as_local(time_date).date().isoformat()
         self._template = attributes.get(ATTR_TEMPLATE)
-        self._running = False
+        self._running  = False
         self._running_zone = None
-        self._state_attributes = {'start_time':self._start_time, 'days_since':self._last_run}
+        self._state_attributes = {'days_since':self._last_run}
+
 
     async def async_added_to_hass(self):
 
@@ -299,19 +296,15 @@ class Irrigation(RestoreEntity):
                 self._last_run = state.state
 
         self.async_schedule_update_ha_state(True)
-
-        y_hour, y_minute  = self._start_time.split(':')
-        async_track_time_change(self.hass, 
-                                self.async_run_program(True), 
-                                hour=int(y_hour), 
-                                minute=int(y_minute),
-                                second=00)
-
-        async_track_time_change(self.hass, 
-                                self.async_update(), 
-                                hour=00, 
-                                minute=00,
-                                second=00)
+        
+        self._template.hass = self.hass
+        async_track_template(self.hass, 
+                             self._template, 
+                             self.async_run_program(True))
+        """ update the days since attribute at midnight """
+        template = cv.template(REFRESH_TEMPLATE)
+        template.hass = self.hass
+        async_track_template(self.hass, template, self.async_refresh())
 
 
     @property
@@ -328,9 +321,8 @@ class Irrigation(RestoreEntity):
             x = '{}, running {}.'.format(
                   self._name, self._running_zone)
         else:
-            x = '{}, runs at {}, last ran'.format(
-                  self._name,
-                  self._start_time)
+            x = '{}, last ran'.format(
+                  self._name)
         return x
 
 
@@ -363,8 +355,15 @@ class Irrigation(RestoreEntity):
         a = datetime.now()
         b = datetime.fromisoformat(self._last_run + " 00:00:00")
         d = a - b
-        ATTRS = {'start_time':self._start_time, 'days_since':d.days}
+        ATTRS = {'days_since':d.days}
         setattr(self, '_state_attributes', ATTRS)
+#        _LOGGER.error('async update %s, %s', ATTRS, self._last_run)
+
+
+    @asyncio.coroutine
+    async def async_refresh(self):
+
+        self.async_schedule_update_ha_state(True)
 
 
     @asyncio.coroutine
@@ -372,7 +371,7 @@ class Irrigation(RestoreEntity):
         self._stop = True
         self._running = False
         self.async_schedule_update_ha_state()
-        
+
 
     @asyncio.coroutine
     async def async_run_program(self, perform_eval):
@@ -435,10 +434,11 @@ class Irrigation(RestoreEntity):
 
         self._running = False
 
-        self.async_schedule_update_ha_state()
+        self.async_schedule_update_ha_state(True)
+
 
 class IrrigationZone(Entity):
-    """Representation of an Irrigation program."""
+    """Representation of an Irrigation zone."""
 
     def __init__(self, irrigation_id, attributes):
     
@@ -462,26 +462,31 @@ class IrrigationZone(Entity):
         self._template   = attributes.get(ATTR_TEMPLATE)
         self._runtime    = 0
         self._state_attributes = {ATTR_REMAINING:self._runtime}
-        
+
+
     @property
     def should_poll(self):
         """If entity should be polled."""
         return False
+
 
     @property
     def name(self):
         """Return the name of the variable."""
         return self._name
 
+
     @property
     def icon(self):
         """Return the icon to be used for this entity."""
         return self._icon
- 
+
+
     @property
     def state(self):
         """Return the state of the component."""
         return self._state
+
 
     @property
     def state_attributes(self):
@@ -489,6 +494,7 @@ class IrrigationZone(Entity):
         Implemented by component base class.
         """
         return self._state_attributes
+
 
     async def async_update(self):
         """Update the state from the template."""
@@ -502,6 +508,7 @@ class IrrigationZone(Entity):
         else:
             icon = self._icon_water
         setattr(self, '_icon', icon)
+
 
     @asyncio.coroutine
     async def async_stop_zone(self):
@@ -534,7 +541,7 @@ class IrrigationZone(Entity):
             y_wait   = self._wait
             y_repeat = self._repeat
 
-        """ assess the template """
+        """ assess the template program internally triggered"""
         if perform_eval:
             evaluated = 'True'
             if self._template is not None:
@@ -557,7 +564,7 @@ class IrrigationZone(Entity):
         for i in range(y_repeat, 0, -1):
             if self._stop == True:
                 break
-                
+
             self._new_state = STATE_ON
             self.async_schedule_update_ha_state(True)
             DATA = {ATTR_ENTITY_ID: self._switch}
@@ -595,7 +602,7 @@ class IrrigationZone(Entity):
                     await asyncio.sleep(step)
                     if self._stop == True:
                         break
-                        
+
             if i <= 1: 
                 """ last/only cycle """
                 self._new_state = STATE_OFF
