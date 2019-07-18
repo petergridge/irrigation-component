@@ -148,4 +148,8 @@ Check sensor values.
 ## REVISION HISTORY
 0.1
 •	Initial release
+0.2
+•	template based
+•	time remaining countdown
+
 
