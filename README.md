@@ -4,21 +4,21 @@ The irrigation component provides the capability to control your irrigation sole
 
 When starting up or powering down the defined switches are turned off to help prevent a solenoid being left on accidentally as a result of your home assistant server having a power outage.
 
-Programs start at the same time every day and then check their defined template to determine if watering is required. The template does not trigger the watering event.
-
 Water can occur in an Eco mode where a water/wait/repeat cycle is run to minimise run off by letting water soak as a result of several short watering cycles.
 
 Only one program can run at a time to prevent multiple solenoids being activated. If programs overlap the running program will be stopped.
 
-Templates can be used to monitor conditions to prevent watering occurring. For programs this can be used to run on specific days or every 3 days or to prevent watering based on a sensor state. For zones this can be used so rules can be applied to individual zones allowing watering to occur in a covered area, or not occur if it is very windy the options are endless.
+Templates are used to monitor conditions to initiate watering. For programs this can be used to run on specific days or every 3 days or to prevent watering based on a sensor state. For zones this can be used so rules can be applied to individual zones allowing watering to occur in a covered area, or not occur if it is very windy the options are endless.
 
 The component creates two entity types
 * irrigation - to represent a program
   - The irrigation entity stores the last run day.
   - The list of zones to run in this program.
+  - Has attribute defining how many days since it last ran.
 * irrigation_zone - to represent zones
   - The irrigation_zone provides the link to a switch entity to control a solenoid.
   - The length of time to water.
+  - Has attribute defining remaining run time.
 
 ## INSTALLATION
 Copy the following files to the ‘config/custom components/irrigation’ directory 
@@ -33,9 +33,8 @@ An irrigation section must be present in the configuration.yaml file that specif
 irrigation:
   programs:
   - name: morning
-    template: "{{ now().weekday() in [0,2,4,6] }}"
+    template: "{{ states('sensor.time') == '07:30' and state_attr('irrigation.morning', 'days_since') > 5 }}"
     icon: mdi:fountain
-    start: "07:02"
     zones:
       - zone: vege_patch
         water: 11
@@ -43,8 +42,7 @@ irrigation:
         repeat: 2
       - zone: front_lawn
   - name: afternoon
-    template: "{{ now().weekday() in [0,1,2,3,4,5,6] }}"
-    start: "19:46"
+    template: "{{  states('sensor.time') == '18:00' and now().strftime('%a') in ['Mon','Wed','Thu','Fri','Sun'] }}"
     zones:
       - zone: vege_patch
       - zone: front_lawn
@@ -67,11 +65,9 @@ irrigation:
 #### name
 *(string)(Required)* This is the name given to the irrigation entity.
 #### template
-*(template)(Optional)* Allows a value_template to defer watering on the program. If defined watering will occur when the template evaluates to True. If not provide program will activate every day.
+*(template)(Required)* Allows a value_template to define watering on the program. If watering will occur when the template evaluates to True.
 #### icon
 *(icon)(Optional)* This will replace the default icon.
-#### start
-*(time)(Required)* This is the start time of the program. Format "hh:mm".
 #### Zones 
 *(list)(Required)* the list of zones to sequentially water.
 #### zone
