@@ -130,12 +130,12 @@ stop_programs:
 
 ## TEMPLATE EXAMPLES
 Both of these templates provide the same result for watering on defined days.
-```
+```yaml
 "{{ now().weekday() in [0,2,4,6] }}"
 "{{ now().strftime('%a') in ['Mon','Wed','Fri','Sun'] }}"
 ```
 Water every three days at 7:30am.
-```
+```yaml
 "{{ states('sensor.time') == '07:30' and state_attr('irrigation.morning', 'days_since') > 2 }}"
 ```
 
