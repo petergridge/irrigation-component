@@ -145,6 +145,13 @@ Check sensor values.
 {{ states('sensor.time') == '07:30' and is_state('binary_sensor.is_wet','off') }}
 {{ states('sensor.time') == '07:30' and states('binary_sensor.is_wet') == 'off' }}
 ```
+## ESPHOME
+An example ESPHOME configuration file is included in the repository this example utilises:
+* ESP8266 
+* PCF8575 - I2C IO expander for up to 16 solenoids
+* BME280 - temperature, pressure and humidity sensor
+* Moisture Sensor - analogue/digital moisture sensor
+
 ## REVISION HISTORY
 0.1
 •	Initial release
