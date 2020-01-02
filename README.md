@@ -100,7 +100,7 @@ irrigation:
 *(icon)(Optional)* This will replace the default icon mdi:timer-sand.
 
 ## SERVICES
-```
+```yaml
 run_program:
     description: Run a defined irrigation program.
     fields:
@@ -140,7 +140,7 @@ Water every three days at 7:30am.
 ```
 
 Check sensor values.
-```
+```yaml
 {{ states('sensor.time') == '07:30' and now().weekday() in [0,1,2,3,4,5,6] and states('binary_sensor.is_wet') == 'off' }}
 {{ states('sensor.time') == '07:30' and is_state('binary_sensor.is_wet','off') }}
 {{ states('sensor.time') == '07:30' and states('binary_sensor.is_wet') == 'off' }}
