@@ -134,16 +134,16 @@ Both of these templates provide the same result for watering on defined days.
 "{{ now().weekday() in [0,2,4,6] }}"
 "{{ now().strftime('%a') in ['Mon','Wed','Fri','Sun'] }}"
 ```
-Water every three days.
+Water every three days at 7:30am.
 ```
-"{{ state_attr('irrigation.morning', 'days_since') > 2 }}"
+"{{ states('sensor.time') == '07:30' and state_attr('irrigation.morning', 'days_since') > 2 }}"
 ```
 
 Check sensor values.
 ```
-{{ now().weekday() in [0,1,2,3,4,5,6] and states('binary_sensor.is_wet') == 'off' }}
-{{ is_state('binary_sensor.is_wet','off') }}
-{{ states('binary_sensor.is_wet') == 'off' }}
+{{ states('sensor.time') == '07:30' and now().weekday() in [0,1,2,3,4,5,6] and states('binary_sensor.is_wet') == 'off' }}
+{{ states('sensor.time') == '07:30' and is_state('binary_sensor.is_wet','off') }}
+{{ states('sensor.time') == '07:30' and states('binary_sensor.is_wet') == 'off' }}
 ```
 ## REVISION HISTORY
 0.1
