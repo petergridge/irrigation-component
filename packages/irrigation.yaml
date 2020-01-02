@@ -1,40 +1,19 @@
-# both of these templates provide the same result water on defined days
-# "{{ now().weekday() in [0,2,4,6] }}"
-# "{{ now().strftime("%a") in ['Mon','Wed','Fri','Sun'] }}"
-#Set number of days between watering
-# water in the third day use > so it will still water on the fourth day if you have a sensor defined
-# "{{ state_attr('irrigation.morning', 'days_since') > 2 }}" # water in the third day
-
-
 irrigation:
   
   programs:
   - name: Morning
-    #template: "{{ now().weekday() in [0,2,4,6] }}"
-    template: "{{ state_attr('irrigation.morning', 'days_since') > 2 }}"
+    template: "{{ states('sensor.time') == '07:30' and state_attr('irrigation.morning', 'days_since') > 2 }}"
     icon: mdi:fountain
-    start: "07:30"
     zones:
       - zone: irrigation_zone.vege_patch
-        water: 1
-        wait: 1
-        repeat: 2
       - zone: irrigation_zone.front_lawn
-  - name: afternoon
-    template: "{{ now().weekday() in [0,1,2,3,4,5,6] }}"
-    start: "19:55"
+  - name: Afternoon
+    template: "{{  states('sensor.time') == '18:15' and now().strftime('%a') in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] }}"
     zones:
       - zone: irrigation_zone.vege_patch
-        water: 1
-        wait: 1
-        repeat: 2
       - zone: irrigation_zone.front_lawn
-        water: 3
-        wait: 1
-        repeat: 3
-  - name: midday2
-    template: "{{ state_attr('irrigation.morning', 'days_since') > 1 }}"
-    start: "12:50"
+  - name: Midday
+    template: "{{ states('sensor.time') == '12:00' }}"
     zones:
       - zone: irrigation_zone.pot_plants
       - zone: irrigation_zone.vege_patch
@@ -43,25 +22,25 @@ irrigation:
   zones:
   - name: Vege Patch
     water: 1
-#    template: "{{ now().strftime('%a') in ['Mon','Wed','Fri'] }}"
-    switch_entity: switch.station_1_solenoid
+#    template: "{{ is_state('binary_sensor.is_wet', 'off') }}"
+    switch_entity: switch.solenoid_01
     icon_off: 'mdi:carrot'
   - name: Front Lawn
     water: 1
-    switch_entity: switch.station_2_solenoid
+    switch_entity: switch.solenoid_02
   - name: Pot Plants
     water: 1
     wait: 1
     repeat: 2
     icon_off: 'mdi:flower'
-    switch_entity: switch.station_3_solenoid
+    switch_entity: switch.solenoid_03
 
 
 switch:
 
 # Solenoid control
   - platform: mqtt
-    name: "Station 1 Solenoid"
+    name: "solenoid_01"
     state_topic: "irrigation/station1/state"
     command_topic: "irrigation/station1/cmd"
     payload_on: ON
@@ -73,7 +52,7 @@ switch:
     icon: mdi:water
 
   - platform: mqtt
-    name: "Station 2 Solenoid"
+    name: "solenoid_02"
     state_topic: "irrigation/station2/state"
     command_topic: "irrigation/station2/cmd"
     payload_on: ON
@@ -85,7 +64,7 @@ switch:
     icon: mdi:water
 
   - platform: mqtt
-    name: "Station 3 Solenoid"
+    name: "solenoid_03"
     state_topic: "irrigation/station3/state"
     command_topic: "irrigation/station3/cmd"
     payload_on: ON
@@ -97,7 +76,7 @@ switch:
     icon: mdi:water
 
   - platform: mqtt
-    name: "Station 4 Solenoid"
+    name: "solenoid_04"
     state_topic: "irrigation/station4/state"
     command_topic: "irrigation/station4/cmd"
     payload_on: ON
