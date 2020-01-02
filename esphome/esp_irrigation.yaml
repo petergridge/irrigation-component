@@ -133,6 +133,7 @@ switch:
   - platform: gpio
     name: "relay 01"
     id: relay01
+    #interlock prevents two switches being active at the same time
     interlock: &interlock_group [relay01, relay02, relay03, relay04]
     pin:
       pcf8574: pcf8575_hub
