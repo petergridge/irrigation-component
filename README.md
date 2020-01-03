@@ -65,9 +65,9 @@ irrigation:
 #### name
 *(string)(Required)* This is the name given to the irrigation entity.
 #### template
-*(template)(Required)* Allows a value_template to define watering on the program. If watering will occur when the template evaluates to True.
+*(template)(Required)* Allows a value template to define when watering occurs on the program. Watering will occur when the template evaluates to True.
 #### icon
-*(icon)(Optional)* This will replace the default icon.
+*(icon)(Optional)* This will replace the default icon icon mdi:fountain.
 #### Zones 
 *(list)(Required)* the list of zones to sequentially water.
 #### zone
