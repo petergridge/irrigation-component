@@ -1,8 +1,9 @@
 {
   "domain": "irrigation",
   "name": "Irrigation component",
-  "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/custom_components/example_sensor/",
+  "documentation": "https://github.com/petergridge/irrigation-component",
   "dependencies": [],
   "codeowners": [],
-  "requirements": []
+  "requirements": [],
+  "quality_scale": "internal"
 }
